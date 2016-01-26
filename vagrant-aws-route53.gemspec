@@ -6,9 +6,9 @@ Gem::Specification.new do |s|
   s.version       = VagrantPlugins::AwsRoute53::VERSION
   s.platform      = Gem::Platform::RUBY
   s.license       = 'MIT'
-  s.authors       = 'Naohiro Oogatta'
-  s.email         = 'oogatta@gmail.com'
-  s.homepage      = 'https://github.com/oogatta/vagrant-aws-route53'
+  s.authors       = ['Colin Ogilvie', 'Naohiro Oogatta']
+  s.email         = ['colin.ogilvie@madbid.com', 'oogatta@gmail.com']
+  s.homepage      = 'https://github.com/Marcandi-Ltd/vagrant-aws-route53'
   s.summary       = 'Assigns IPs of Vagrant AWS instances to route 53.'
   s.description   = 'A Vagrant plugin assigns the IP of the instance which vagrant-aws provider created to a specific Route 53 record set.'
   s.require_path  = 'lib'

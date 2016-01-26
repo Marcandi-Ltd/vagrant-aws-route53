@@ -21,17 +21,28 @@ module VagrantPlugins
 
         def set(options)
           ::AWS.config(access_key_id: options[:access_key_id], secret_access_key: options[:secret_access_key], region: options[:region])
-
           ec2 = ::AWS.ec2
-          public_ip = options[:public_ip] || ec2.instances[options[:instance_id]].public_ip_address
-
+          batch = ::AWS::Route53::ChangeBatch.new(options[:hosted_zone_id])
+          ip = options[:public_ip] || ec2.instances[options[:instance_id]].public_ip_address
           record_sets = ::AWS::Route53::HostedZone.new(options[:hosted_zone_id]).rrsets
           record_set  = record_sets[*options[:record_set]]
-          record_set.resource_records = [{ value: public_ip }]
-          record_set.update
 
+          # If the ip is 0.0.0.0 then we're actually deleting this record
+          if ip == '0.0.0.0'
+            # If the record doesn't exist, there is no point in deleting it
+            if record_set.exists? == true
+              batch << ::AWS::Route53::DeleteRequest.new( options[:record_set][0], options[:record_set][1], :resource_records => [record_set.resource_records[0]], :ttl => record_set.ttl )
+            end
+          else
+            batch << ::AWS::Route53::CreateRequest.new( options[:record_set][0], options[:record_set][1], :resource_records => [{:value => ip }], :ttl => 3600 )
+          end
+
+          if batch.length > 0
+            batch.call
+          end
+          
           if block_given?
-            yield options[:instance_id], public_ip, options[:record_set]
+            yield options[:instance_id], ip, options[:record_set]
           end
 
           nil
